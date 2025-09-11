@@ -21,6 +21,13 @@ function buildHoles(n: number, par: number): Hole[] {
   return Array.from({ length: n }, (_, i) => ({ number: i + 1, par }));
 }
 
+function pushHistory(state: AppState, prev: RoundState): AppState {
+  const hist = state.history ?? [];
+  const nextHist = [...hist, prev];
+  if (nextHist.length > 10) nextHist.shift();
+  return { ...state, history: nextHist };
+}
+
 export function reducer(state: AppState, action: Action): AppState {
   switch (action.type) {
     case "LOAD_SAVED":
@@ -43,23 +50,34 @@ export function reducer(state: AppState, action: Action): AppState {
     }
 
     case "LOG_THROW": {
-      if (!state.currentRound) return state;
-      const r = state.currentRound;
-      const ev = {
-        id: rid("t"),
-        playerId: action.payload.playerId,
-        hole: r.currentHole,
-        note: action.payload.note,
-        timestamp: Date.now(),
-      };
-      return { ...state, currentRound: { ...r, throwLog: [...r.throwLog, ev], updatedAt: Date.now() } };
+        if (!state.currentRound) return state;
+        const prev = state.currentRound;
+        const r = state.currentRound;
+        const ev = {
+            id: rid("t"),
+            playerId: action.payload.playerId,
+            hole: r.currentHole,
+            note: action.payload.note,
+            timestamp: Date.now(),
+        };
+        const updated: RoundState = { ...r, throwLog: [...r.throwLog, ev], updatedAt: Date.now() };
+        return { ...(pushHistory(state, prev)), currentRound: updated };
     }
 
     case "NEXT_HOLE": {
-      if (!state.currentRound) return state;
-      const r = state.currentRound;
-      const next = Math.min(r.currentHole + 1, r.holes.length);
-      return { ...state, currentRound: { ...r, currentHole: next, updatedAt: Date.now() } };
+        if (!state.currentRound) return state;
+        const prev = state.currentRound;
+        const r = state.currentRound;
+        const next = Math.min(r.currentHole + 1, r.holes.length);
+        const updated: RoundState = { ...r, currentHole: next, updatedAt: Date.now() };
+        return { ...(pushHistory(state, prev)), currentRound: updated };
+    }
+
+    case "UNDO": {
+        if (!state.history || state.history.length === 0) return state;
+        const hist = state.history.slice();
+        const last = hist.pop()!;
+        return { ...state, currentRound: last, history: hist };
     }
 
     case "END_ROUND":

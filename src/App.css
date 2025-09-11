@@ -27,3 +27,28 @@ input {
 }
 h2 { margin-top: 16px; margin-bottom: 8px; }
 h3 { margin-top: 16px; }
+
+/* layout helpers */
+.row { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 12px; }
+.grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+
+@media (max-width: 420px) {
+  .grid { grid-template-columns: 1fr; } /* én kolonne på smale skjermer */
+}
+
+button {
+  background: #0b5bd3;
+  color: white;
+  padding: 12px 16px;
+  border: 0;
+  border-radius: 10px;
+  font-size: 16px;
+  cursor: pointer;
+}
+button:hover { filter: brightness(0.95); }
+button:active { transform: translateY(1px); }
+
+button.big {
+  padding: 18px 16px;
+  font-size: 18px;
+}
