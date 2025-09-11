@@ -18,3 +18,12 @@ button {
 button:hover {
   background-color: navy;
 }
+
+input {
+  margin-left: 8px;
+  padding: 6px 8px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+}
+h2 { margin-top: 16px; margin-bottom: 8px; }
+h3 { margin-top: 16px; }
