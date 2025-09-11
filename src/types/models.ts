@@ -38,5 +38,6 @@ export type Settings = {
 export type AppState = {
   currentRound?: RoundState;
   settings: Settings;
-  version: number; // app state versjon
+  version: number;
+  history?: RoundState[]; // legg til
 };
