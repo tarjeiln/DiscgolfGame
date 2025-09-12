@@ -45,7 +45,8 @@ export type AppState = {
   currentRound?: RoundState;
   settings: Settings;
   version: number;
-  history?: RoundState[]; // legg til
+  history?: RoundState[];
+  savedRounds?: SavedRound[];
 };
 
 export type Card = {
@@ -62,4 +63,9 @@ export type HoleCards = {
   pickOrder: ID[];
   picks: Record<ID, ID>;
   finalized: boolean; 
+};
+
+// legg til ny type
+export type SavedRound = RoundState & {
+  endedAt: number;           // når runden ble avsluttet
 };

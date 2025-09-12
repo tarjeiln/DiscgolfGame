@@ -35,3 +35,10 @@
 .minus { background: var(--danger); }
 
 .plus:hover, .minus:hover { filter: brightness(0.95); }
+
+.left { display: flex; flex-direction: column; }
+
+.meta {
+  font-size: 12px;
+  color: var(--muted);
+}

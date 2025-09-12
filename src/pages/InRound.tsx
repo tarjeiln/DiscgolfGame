@@ -26,6 +26,31 @@ export default function InRound({ round, onLogThrow, onRemoveThrow, onPrevHole, 
   const strokesOnHole = (playerId: ID) =>
     round.throwLog.filter(ev => ev.playerId === playerId && ev.hole === currentHole).length;
 
+  const totalStrokes = (playerId: ID) =>
+    round.throwLog.filter(ev => ev.playerId === playerId).length;
+
+  const parForPlayedHoles = (playerId: ID) => {
+    const played = new Set<number>();
+    for (const ev of round.throwLog) {
+      if (ev.playerId === playerId) played.add(ev.hole);
+    }
+    let sum = 0;
+    played.forEach(h => { sum += round.holes[h - 1]?.par ?? 3; });
+    return sum;
+  };
+
+  const formatToPar = (delta: number) => delta === 0 ? "E" : (delta > 0 ? `+${delta}` : `${delta}`);
+
+  const handlePlus = (playerId: ID) => {
+    const count = strokesOnHole(playerId);
+    if (count === 0) {
+      const par = round.holes[currentHole - 1]?.par ?? 3;
+      for (let i = 0; i < par; i++) onLogThrow(playerId); // legg inn 'par' kast på første trykk
+    } else {
+      onLogThrow(playerId); // vanlig +1
+    }
+  };
+
   const isFirst = currentHole === 1;
   const isLast  = currentHole === round.holes.length;
 
@@ -41,7 +66,9 @@ export default function InRound({ round, onLogThrow, onRemoveThrow, onPrevHole, 
     <main className="container">
       <div className="stack">
         <h2>{round.courseName ?? "Runde"} – Hull {currentHole}/{round.holes.length}</h2>
-
+        <p style={{ marginTop: 6, marginBottom: 8 }}>
+          <span className={styles.parBadge}>Hull {currentHole}: Par {round.holes[currentHole - 1]?.par ?? 3}</span>
+        </p>
 
         {/* KORT-SEKSJON */}
         {hc && (
@@ -95,16 +122,24 @@ export default function InRound({ round, onLogThrow, onRemoveThrow, onPrevHole, 
 
         {/* SPILLERLISTE */}
         <div className={styles.list}>
-          {orderedPlayers.map((p, idx) => (
-            <PlayerRow
-              key={p.id}
-              index={idx + 1}
-              name={p.name}
-              count={strokesOnHole(p.id)}
-              onMinus={() => onRemoveThrow(p.id)}
-              onPlus={() => onLogThrow(p.id)}
-            />
-          ))}
+          {orderedPlayers.map((p, idx) => {
+            const count = strokesOnHole(p.id);
+            const total = totalStrokes(p.id);
+            const delta = total - parForPlayedHoles(p.id);
+            const meta = `Totalt: ${total} (${formatToPar(delta)})`;
+
+            return (
+              <PlayerRow
+                key={p.id}
+                index={idx + 1}
+                name={p.name}
+                count={count}
+                onMinus={() => onRemoveThrow(p.id)}
+                onPlus={() => handlePlus(p.id)}
+                meta={meta}
+              />
+            );
+          })}
         </div>
 
         <HoleNav
