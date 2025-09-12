@@ -19,7 +19,7 @@ function App() {
   useEffect(()=>{ saveState(state); }, [state]);
 
   return (
-    <div style={{ padding: 12, maxWidth: 520, margin: "0 auto" }}>
+    <div className="container">
       <h1>Discgolf</h1>
 
       {screen==="home" && (
@@ -62,6 +62,7 @@ function App() {
             dispatch({ type:"END_ROUND" });
             setScreen("summary");
           }}
+          onHome={()=> setScreen("home")}
         />
       )}
     </div>
