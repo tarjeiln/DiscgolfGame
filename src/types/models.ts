@@ -28,6 +28,10 @@ export type RoundState = {
   createdAt: number;
   updatedAt: number;
   teeOrder?: ID[];        // NY: rekkefølgen spillerne skal slå ut på neste hull
+  cards?: Record<ID, Card>;   // alle kort (katalog)
+  deck?: ID[];                // resterende kort i bunken (øverst = index 0)
+  discard?: ID[];             // brukte kort
+  holeCards?: Record<number, HoleCards>; // per-hull tildeling
 };
 
 
@@ -44,3 +48,18 @@ export type AppState = {
   history?: RoundState[]; // legg til
 };
 
+export type Card = {
+  id: ID;
+  title: string;
+  description?: string;
+  rarity?: 'common' | 'rare' | 'epic';
+};
+
+export type HoleCards = {
+  hole: number;
+  sharedCardId?: ID;
+  options?: ID[];
+  pickOrder: ID[];
+  picks: Record<ID, ID>;
+  finalized: boolean; 
+};
