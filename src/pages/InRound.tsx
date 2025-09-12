@@ -12,9 +12,10 @@ type Props = {
   onNextHole: () => void;
   onEnd: () => void;
   onHome?: () => void;
+  onPickCard: (hole: number, playerId: ID, cardId: ID) => void;
 };
 
-export default function InRound({ round, onLogThrow, onRemoveThrow, onPrevHole, onNextHole, onEnd, onHome }: Props) {
+export default function InRound({ round, onLogThrow, onRemoveThrow, onPrevHole, onNextHole, onEnd, onHome, onPickCard }: Props) {
   const currentHole = round.currentHole;
 
   const teeIds: ID[] = (round.teeOrder?.length ? round.teeOrder : round.players.map(p => p.id));
@@ -28,12 +29,71 @@ export default function InRound({ round, onLogThrow, onRemoveThrow, onPrevHole, 
   const isFirst = currentHole === 1;
   const isLast  = currentHole === round.holes.length;
 
+  const hc = round.holeCards?.[currentHole];
+  const cards = round.cards ?? {};
+
+  // hvem sin tur på hull >= 2
+  const pickedCount = hc && hc.picks ? Object.keys(hc.picks).length : 0;
+  const currentPickerId = (hc && hc.pickOrder && hc.pickOrder[pickedCount]) || undefined;
+  const currentPickerName = round.players.find(p => p.id === currentPickerId)?.name;
+
   return (
     <main className="container">
       <div className="stack">
         <h2>{round.courseName ?? "Runde"} – Hull {currentHole}/{round.holes.length}</h2>
 
-        {/* Valgfritt: legg .panel her hvis du vil ha kort-stil rundt spillerlisten */}
+
+        {/* KORT-SEKSJON */}
+        {hc && (
+          <section>
+            {currentHole === 1 && hc.sharedCardId && (
+              <div className={styles.cards}>
+                <article className={styles.card}>
+                  <h3 className={styles.cardTitle}>{cards[hc.sharedCardId]?.title ?? 'Kort'}</h3>
+                  <p className={styles.cardDesc}>{cards[hc.sharedCardId]?.description}</p>
+                  <small>Gjelder alle spillere på hull 1.</small>
+                </article>
+              </div>
+            )}
+
+            {currentHole > 1 && hc.options && (
+              <div className="stack">
+                {!hc.finalized && currentPickerName && (
+                  <p><strong> {currentPickerName}</strong> velger kort først.</p>
+                )}
+                <div className={styles.cards}>
+                  {hc.options.map(cid => {
+                    const c = cards[cid];
+                    const pickedBy = Object.entries(hc.picks).find(([, id]) => id === cid)?.[0];
+                    const pickedName = pickedBy ? round.players.find(p => p.id === pickedBy)?.name : undefined;
+
+                    return (
+                      <article key={cid} className={styles.card}>
+                        <h3 className={styles.cardTitle}>{c?.title ?? 'Kort'}</h3>
+                        <p className={styles.cardDesc}>{c?.description}</p>
+
+                        {pickedName ? (
+                          <div className={styles.picked}>Valgt av {pickedName}</div>
+                        ) : (
+                          !hc.finalized && currentPickerId && (
+                            <button
+                              type="button"
+                              onClick={() => onPickCard(currentHole, currentPickerId, cid)}
+                            >
+                              Velg dette kortet
+                            </button>
+                          )
+                        )}
+                      </article>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
+          </section>
+        )}
+
+        {/* SPILLERLISTE */}
         <div className={styles.list}>
           {orderedPlayers.map((p, idx) => (
             <PlayerRow

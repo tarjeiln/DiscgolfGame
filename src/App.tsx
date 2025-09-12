@@ -16,7 +16,6 @@ function App() {
   const [state, dispatch] = useReducer(reducer, saved ?? initialState());
   const [screen, setScreen] = useState<Screen>(saved?.currentRound ? "in" : "home");
   const [finishedRound, setFinishedRound] = useState<RoundState | null>(null);
-  const APP_NAME = import.meta.env.VITE_APP_NAME ?? "DiscgolfGame";
 
   useEffect(()=>{ saveState(state); }, [state]);
 
@@ -52,17 +51,14 @@ function App() {
 
       {screen==="in" && state.currentRound && (
         <InRound
-          round={state.currentRound}
-          onLogThrow={(pid)=>dispatch({ type:"LOG_THROW", payload:{ playerId: pid } })}
+          round={state.currentRound!}
+          onLogThrow={(pid) => dispatch({ type: "LOG_THROW", payload: { playerId: pid } })}
           onRemoveThrow={(pid) => dispatch({ type: "REMOVE_THROW", payload: { playerId: pid } })}
-          onPrevHole={()=>dispatch({ type:"PREV_HOLE" })}
-          onNextHole={()=>dispatch({ type:"NEXT_HOLE" })}
-          onEnd={()=>{
-            if (state.currentRound) setFinishedRound(state.currentRound);
-            dispatch({ type:"END_ROUND" });
-            setScreen("summary");
-          }}
-          onHome={()=> setScreen("home")}
+          onPrevHole={() => dispatch({ type: "PREV_HOLE" })}
+          onNextHole={() => dispatch({ type: "NEXT_HOLE" })}
+          onEnd={() => { setFinishedRound(state.currentRound!); dispatch({ type: "END_ROUND" }); setScreen("summary"); }}
+          onHome={() => setScreen("home")}
+          onPickCard={(hole, playerId, cardId) => dispatch({ type: "PICK_CARD", payload: { hole, playerId, cardId } })}
         />
       )}
     </div>
