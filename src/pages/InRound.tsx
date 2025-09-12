@@ -1,5 +1,8 @@
-import type { RoundState, Player, ID } from "../types/models";
-import styles from "./InRound.module.css";  // <—
+import type { RoundState, Player, ID } from '@models/models';
+import styles from './InRound.module.css';
+import PlayerRow from '@components/common/PlayerRow';
+import HoleNav from '@components/common/HoleNav';
+
 
 type Props = {
   round: RoundState;

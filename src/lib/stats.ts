@@ -1,4 +1,4 @@
-import type { RoundState, ID } from "../types/models";
+import type { RoundState, ID } from '@models/models';
 
 export function strokesOnHole(round: RoundState, playerId: ID, hole: number): number {
   return round.throwLog.filter(ev => ev.playerId === playerId && ev.hole === hole).length;
