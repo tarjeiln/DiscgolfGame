@@ -1,0 +1,33 @@
+.row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px;
+  border: 1px solid #e5e5e5;
+  border-radius: 10px;
+  background: #fafafa;
+}
+
+.name { font-weight: 600; }
+
+.counter { display: flex; align-items: center; gap: 8px; }
+
+.count {
+  min-width: 36px;
+  text-align: center;
+  font-weight: 700;
+  font-size: 18px;
+}
+
+.plus, .minus {
+  width: 40px; height: 40px;
+  border-radius: 10px;
+  font-size: 22px;
+  line-height: 1;
+  display: inline-flex; align-items: center; justify-content: center;
+}
+
+.plus  { background: var(--success); }
+.minus { background: var(--danger); }
+
+.plus:hover, .minus:hover { filter: brightness(0.95); }
