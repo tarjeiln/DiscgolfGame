@@ -7,6 +7,7 @@ import InRound from '@pages/InRound';
 import Summary from '@pages/Summary';
 import type { RoundState } from '@models/models';
 
+
 type Screen = "home" | "new" | "in" | "summary";
 
 
@@ -15,13 +16,12 @@ function App() {
   const [state, dispatch] = useReducer(reducer, saved ?? initialState());
   const [screen, setScreen] = useState<Screen>(saved?.currentRound ? "in" : "home");
   const [finishedRound, setFinishedRound] = useState<RoundState | null>(null);
+  const APP_NAME = import.meta.env.VITE_APP_NAME ?? "DiscgolfGame";
 
   useEffect(()=>{ saveState(state); }, [state]);
 
   return (
-    <div style={{ padding: 12, maxWidth: 520, margin: "0 auto" }}>
-      <h1>Discgolf</h1>
-
+    <div>
       {screen==="home" && (
         <Home
           onStart={()=>setScreen("new")}
@@ -62,6 +62,7 @@ function App() {
             dispatch({ type:"END_ROUND" });
             setScreen("summary");
           }}
+          onHome={()=> setScreen("home")}
         />
       )}
     </div>

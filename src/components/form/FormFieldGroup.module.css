@@ -1,0 +1,32 @@
+.field { border: 0; margin: 10px 0; padding: 0; }
+.top { display: flex; align-items: center; justify-content: space-between; }
+.legend { font-size: 14px; font-weight: 600; margin-bottom: 6px; }
+
+.inputs {
+  display: grid;
+  grid-template-rows: repeat(var(--cols, 2), 1fr);
+  gap: 8px;
+}
+
+.inputWrap { display: flex; flex-direction: column; gap: 6px; }
+.sub { font-size: 12px; color: var(--muted); }
+
+.input {
+  padding: 10px 12px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: transparent;
+  color: var(--text);
+}
+.input:focus {
+  outline: 3px solid rgba(11,91,211,.25);
+  outline-offset: 2px;
+  border-color: var(--primary);
+}
+
+.hint { font-size: 12px; color: var(--muted); margin-top: 6px; }
+.error { font-size: 12px; color: var(--danger); margin-top: 6px; }
+
+/* Vil du auto-tilpasse antall kolonner? Bytt grid-template-columns til:
+   grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+*/
