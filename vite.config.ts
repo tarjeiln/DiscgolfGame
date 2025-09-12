@@ -9,6 +9,16 @@ const __dirname  = path.dirname(__filename)
 
 export default defineConfig({
   plugins: [react()],
+  server: {
+    proxy: {
+      '/metrix': {
+        target: 'https://discgolfmetrix.com',
+        changeOrigin: true,
+        secure: false,
+        rewrite: p => p.replace(/^\/metrix/, '')
+      }
+    }
+  },
   resolve: {
     alias: {
       '@state':       path.resolve(__dirname, 'src/state'),
@@ -18,4 +28,5 @@ export default defineConfig({
       '@components':  path.resolve(__dirname, 'src/components'),
     }
   }
+  
 })
