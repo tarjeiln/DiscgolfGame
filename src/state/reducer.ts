@@ -1,5 +1,6 @@
-import type { AppState, Player, Hole, RoundState } from "../types/models";
-import { rid } from "../lib/id";
+import type { AppState, Player, Hole, RoundState } from '@models/models';
+import { rid } from '@lib/id';
+
 
 export type Action =
   | { type: "NEW_ROUND"; payload: { courseName?: string; players: string[]; holes: number; defaultPar?: number } }
