@@ -1,24 +1,29 @@
 /* ===== Design tokens (light) ===== */
 :root{
   --primary: #e15600;
-  --secondary:#b04400;
   --success: #198754;
   --danger:  #dc3545;
 
-  --bg:   #ffffff;
-  --text: #213547;
+  --bg:#ffffff;
+  --surface:#ffffff;
+  --text:#111111;
   --muted:#6b7280;
-  --border:#e5e7eb;
-
-  --radius: 10px;
+  --border:#e5e5e5;
+  --radius:12px;
+  --shadow:0 6px 20px rgba(0,0,0,.06);
+  --masthead-bg: color-mix(in oklab, var(--primary) 50%, var(--bg));
 }
 
 /* Dark – følger systeminnstilling */
 @media (prefers-color-scheme: dark){
   :root{
-    --bg:   #111827;
-    --text: #f3f4f6;
-    --border:#374151;
+    --bg:#0b0b0f;
+    --surface:#141418;
+    --text:#f4f4f5;
+    --muted:#9ca3af;
+    --border:#26262b;
+    --shadow:0 8px 24px rgba(0,0,0,.35);
+    --masthead-bg: color-mix(in oklab, var(--primary) 18%, #0b0b0f);
   }
 }
 
@@ -72,4 +77,48 @@ button:focus-visible{
 .sr-only{
   position:absolute; width:1px; height:1px; padding:0; margin:-1px;
   overflow:hidden; clip:rect(0,0,0,0); white-space:nowrap; border:0;
+}
+
+.hero { 
+  background: radial-gradient(1200px 400px at 20% -10%, color-mix(in oklab, var(--primary) 18%, transparent) 0%, transparent 70%);
+  border-radius: var(--radius);
+  padding: 24px;
+  box-shadow: var(--shadow);
+}
+
+.btn-secondary{
+  background:#fff;
+  color: var(--primary);
+  border:1px solid var(--border);
+}
+
+.appHeader{
+  background: linear-gradient(180deg, var(--masthead-bg) 0%, transparent 100%);
+  padding: 28px 0 56px;        /* høyde på “området over streken” */
+  margin: 0 0 12px;            /* liten luft før kortene */
+}
+
+.appTitle{
+  margin: 0;
+  text-align: center;          /* sentrer tittel */
+  font-size: 32px;
+}
+
+/* Felles innpakning for sider */
+.container{
+  max-width: 680px;   /* eller 520/720 – smakssak */
+  margin: 0 auto;
+  padding: 16px;      /* gir luft mot venstre/høyre */
+}
+
+/* Enkel vertikal spacing mellom elementer */
+.stack > * + * { margin-top: 12px; }
+
+/* Valgfri “panel”-stil hvis du vil ha kort-lignende bokser på NewRound/InRound */
+.panel{
+  background: color-mix(in oklab, var(--surface) 88%, transparent);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  padding: 16px;
 }

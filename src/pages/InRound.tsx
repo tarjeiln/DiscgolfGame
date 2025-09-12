@@ -29,31 +29,33 @@ export default function InRound({ round, onLogThrow, onRemoveThrow, onPrevHole, 
   const isLast  = currentHole === round.holes.length;
 
   return (
-    <div>
-      <h2>{round.courseName ?? "Runde"} – Hull {currentHole}/{round.holes.length}</h2>
+    <main className="container">
+      <div className="stack">
+        <h2>{round.courseName ?? "Runde"} – Hull {currentHole}/{round.holes.length}</h2>
 
-       <div className={styles.list}>
-        {orderedPlayers.map((p, idx) => (
-          <PlayerRow
-            key={p.id}
-            index={idx + 1}
-            name={p.name}
-            count={strokesOnHole(p.id)}
-            total={round.throwLog.filter(ev => ev.playerId === p.id).length}
-            onMinus={() => onRemoveThrow(p.id)}
-            onPlus={() => onLogThrow(p.id)}
-          />
-        ))}
-      </div>
+        {/* Valgfritt: legg .panel her hvis du vil ha kort-stil rundt spillerlisten */}
+        <div className={styles.list}>
+          {orderedPlayers.map((p, idx) => (
+            <PlayerRow
+              key={p.id}
+              index={idx + 1}
+              name={p.name}
+              count={strokesOnHole(p.id)}
+              onMinus={() => onRemoveThrow(p.id)}
+              onPlus={() => onLogThrow(p.id)}
+            />
+          ))}
+        </div>
 
-      <HoleNav
-        isFirst={isFirst}
-        isLast={isLast}
-        onPrev={onPrevHole}
-        onNext={onNextHole}
-        onEnd={onEnd}
-        onHome={onHome}   // valgfri: vises bare hvis du sender inn onHome-prop
+        <HoleNav
+          isFirst={isFirst}
+          isLast={isLast}
+          onPrev={onPrevHole}
+          onNext={onNextHole}
+          onEnd={onEnd}
+          onHome={onHome}
         />
-    </div>
+      </div>
+    </main>
   );
 }
