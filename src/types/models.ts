@@ -22,12 +22,14 @@ export type RoundState = {
   id: ID;
   courseName?: string;
   players: Player[];
-  holes: Hole[];          // rekkefølge = hull 1..N
+  holes: Hole[];
   currentHole: number;    // 1-basert
   throwLog: ThrowEvent[];
   createdAt: number;
   updatedAt: number;
+  teeOrder?: ID[];        // NY: rekkefølgen spillerne skal slå ut på neste hull
 };
+
 
 export type Settings = {
   haptics: boolean;
@@ -41,3 +43,4 @@ export type AppState = {
   version: number;
   history?: RoundState[]; // legg til
 };
+

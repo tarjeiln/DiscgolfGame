@@ -4,10 +4,12 @@ import { rid } from "../lib/id";
 export type Action =
   | { type: "NEW_ROUND"; payload: { courseName?: string; players: string[]; holes: number; defaultPar?: number } }
   | { type: "LOG_THROW"; payload: { playerId: string; note?: string } }
+  | { type: "REMOVE_THROW"; payload: { playerId: string } }
   | { type: "NEXT_HOLE" }
-  | { type: "UNDO" } // placeholder – implementeres senere
+  | { type: "PREV_HOLE" }
   | { type: "LOAD_SAVED"; payload: AppState }
   | { type: "END_ROUND" };
+
 
 export function initialState(): AppState {
   return {
@@ -16,6 +18,14 @@ export function initialState(): AppState {
     version: 1,
   };
 }
+
+function stableBy<T>(arr: T[], key: (x: T)=>number, tieBreak: (a:T,b:T)=>number) {
+  return arr
+    .map((v, i) => ({ v, k: key(v), i }))
+    .sort((a, b) => a.k - b.k || tieBreak(a.v, b.v) || a.i - b.i)
+    .map(x => x.v);
+}
+
 
 function buildHoles(n: number, par: number): Hole[] {
   return Array.from({ length: n }, (_, i) => ({ number: i + 1, par }));
@@ -34,20 +44,24 @@ export function reducer(state: AppState, action: Action): AppState {
       return action.payload;
 
     case "NEW_ROUND": {
-      const players: Player[] = action.payload.players.map(name => ({ id: rid("p"), name: name.trim() })).filter(p => p.name.length);
-      const holes = buildHoles(action.payload.holes, action.payload.defaultPar ?? 3);
-      const round: RoundState = {
-        id: rid("round"),
-        courseName: action.payload.courseName?.trim() || undefined,
-        players,
-        holes,
-        currentHole: 1,
-        throwLog: [],
-        createdAt: Date.now(),
-        updatedAt: Date.now(),
-      };
-      return { ...state, currentRound: round };
+        const players: Player[] = action.payload.players
+            .map(name => ({ id: rid("p"), name: name.trim() }))
+            .filter(p => p.name.length);
+        const holes = buildHoles(action.payload.holes, action.payload.defaultPar ?? 3);
+        const round: RoundState = {
+            id: rid("round"),
+            courseName: action.payload.courseName?.trim() || undefined,
+            players,
+            holes,
+            currentHole: 1,
+            throwLog: [],
+            createdAt: Date.now(),
+            updatedAt: Date.now(),
+            teeOrder: players.map(p => p.id), // her
+        };
+        return { ...state, currentRound: round };
     }
+
 
     case "LOG_THROW": {
         if (!state.currentRound) return state;
@@ -73,12 +87,39 @@ export function reducer(state: AppState, action: Action): AppState {
         return { ...(pushHistory(state, prev)), currentRound: updated };
     }
 
-    case "UNDO": {
-        if (!state.history || state.history.length === 0) return state;
-        const hist = state.history.slice();
-        const last = hist.pop()!;
-        return { ...state, currentRound: last, history: hist };
+    case "PREV_HOLE": {
+        if (!state.currentRound) return state;
+        const r = state.currentRound;
+        const prevHole = Math.max(r.currentHole - 1, 1);
+        const updated: RoundState = { ...r, currentHole: prevHole, updatedAt: Date.now() };
+        return { ...(pushHistory(state, r)), currentRound: updated };
     }
+
+    case "REMOVE_THROW": {
+        if (!state.currentRound) return state;
+        const r = state.currentRound;
+        const hole = r.currentHole;
+
+        // finn siste kast på dette hullet for denne spilleren
+        let removeIndex = -1;
+        for (let i = r.throwLog.length - 1; i >= 0; i--) {
+            const ev = r.throwLog[i];
+            if (ev.hole === hole && ev.playerId === action.payload.playerId) {
+            removeIndex = i;
+            break;
+            }
+        }
+        if (removeIndex === -1) return state; // ingenting å fjerne
+
+        const prev = r;
+        const newLog = r.throwLog.slice();
+        newLog.splice(removeIndex, 1);
+
+        const updated: RoundState = { ...r, throwLog: newLog, updatedAt: Date.now() };
+        return { ...(pushHistory(state, prev)), currentRound: updated };
+    }
+
+
 
     case "END_ROUND":
       return { ...state, currentRound: undefined };

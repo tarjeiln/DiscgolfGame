@@ -1,37 +1,54 @@
-import type { RoundState } from "../types/models";
+import type { RoundState, Player, ID } from "../types/models";
+import styles from "./InRound.module.css";  // <—
 
 type Props = {
   round: RoundState;
-  onLogThrow: (playerId:string)=>void;
-  onNextHole: ()=>void;
-  onEnd: ()=>void;
-  onUndo: ()=>void;
+  onLogThrow: (playerId: ID) => void;
+  onRemoveThrow: (playerId: ID) => void;
+  onPrevHole: () => void;
+  onNextHole: () => void;
+  onEnd: () => void;
 };
 
-export default function InRound({ round, onLogThrow, onNextHole, onEnd, onUndo }: Props) {
+export default function InRound({ round, onLogThrow, onRemoveThrow, onPrevHole, onNextHole, onEnd }: Props) {
+  const currentHole = round.currentHole;
+
+  const teeIds: ID[] = (round.teeOrder?.length ? round.teeOrder : round.players.map(p => p.id));
+  const orderedPlayers: Player[] = teeIds
+    .map(id => round.players.find(p => p.id === id) ?? null)
+    .filter((p): p is Player => p !== null);
+
+  const strokesOnHole = (playerId: ID) =>
+    round.throwLog.filter(ev => ev.playerId === playerId && ev.hole === currentHole).length;
+
+  const isFirst = currentHole === 1;
+  const isLast  = currentHole === round.holes.length;
+
   return (
     <div>
-      <h2>{round.courseName ?? "Runde"} – Hull {round.currentHole}/{round.holes.length}</h2>
+      <h2>{round.courseName ?? "Runde"} – Hull {currentHole}/{round.holes.length}</h2>
 
-      <div className="grid">
-        {round.players.map(p=>(
-          <button key={p.id} className="big"
-                  onClick={()=>onLogThrow(p.id)}>Kast: {p.name}</button>
-        ))}
+      <div className={styles.list}>
+        {orderedPlayers.map((p, idx) => {
+          const count = strokesOnHole(p.id);
+          return (
+            <div key={p.id} className={styles.playerRow}>
+              <span className={styles.playerName}>#{idx + 1} {p.name}</span>
+              <div className={styles.counter}>
+                <button className={styles.minus} onClick={() => onRemoveThrow(p.id)} disabled={count === 0}>−</button>
+                <span className={styles.count}>{count}</span>
+                <button className={styles.plus}  onClick={() => onLogThrow(p.id)}>+</button>
+              </div>
+            </div>
+          );
+        })}
       </div>
 
-      <div className="row">
-        <button onClick={onNextHole}>Neste hull</button>
-        <button onClick={onUndo}>Angre</button>
-        <button onClick={onEnd}>Avslutt runde</button>
+      <div className="row" style={{ marginTop:12 }}>
+        <button onClick={onPrevHole} disabled={isFirst}>Forrige hull</button>
+        <button onClick={onNextHole} disabled={isLast}>Neste hull</button>
+        {isLast && <button onClick={onEnd}>Ferdig med runden</button>}
       </div>
-
-      <h3>Logg</h3>
-      <ul>
-        {round.throwLog.slice().reverse().map(ev=>(
-          <li key={ev.id}>Hull {ev.hole} – {round.players.find(p=>p.id===ev.playerId)?.name}</li>
-        ))}
-      </ul>
     </div>
   );
 }
