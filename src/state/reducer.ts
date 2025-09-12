@@ -1,4 +1,4 @@
-import type { AppState, Player, Hole, RoundState, ID, HoleCards } from '@models/models';
+import type { AppState, Player, Hole, RoundState, ID, HoleCards, SavedRound } from '@models/models';
 import { rid } from '@lib/id';
 import { buildDeck } from '@lib/cards';
 
@@ -10,6 +10,7 @@ export type Action =
   | { type: "PREV_HOLE" }
   | { type: "LOAD_SAVED"; payload: AppState }
   | { type: "END_ROUND" }
+  | { type: "DELETE_SAVED_ROUND"; payload: { roundId: ID }}
   | { type: "PICK_CARD"; payload: { hole: number; playerId: ID; cardId: ID } }; // NY
 
 
@@ -18,6 +19,7 @@ export function initialState(): AppState {
     currentRound: undefined,
     settings: { haptics: true, confirmDialogs: true, bigButtons: true },
     version: 1,
+    savedRounds: [],
   };
 }
 
@@ -243,12 +245,18 @@ export function reducer(state: AppState, action: Action): AppState {
       return { ...(pushHistory(state, r)), currentRound: updated };
     }
 
+    case "DELETE_SAVED_ROUND": {
+      const list = (state.savedRounds ?? []).filter(r => r.id !== action.payload.roundId);
+      return { ...state, savedRounds: list };
+    }
 
-
-    case "END_ROUND":
-      return { ...state, currentRound: undefined };
-
-    default:
-      return state;
+    case "END_ROUND": {
+      if (!state.currentRound) return state;
+      const finished: SavedRound = { ...state.currentRound, endedAt: Date.now() };
+      const list = [finished, ...(state.savedRounds ?? [])];
+      // valgfritt: begrens antall
+      const clipped = list.slice(0, 50);
+      return { ...state, currentRound: undefined, savedRounds: clipped };
+    }
   }
 }

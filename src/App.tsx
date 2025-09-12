@@ -6,9 +6,10 @@ import NewRound from '@pages/NewRound';
 import InRound from '@pages/InRound';
 import Summary from '@pages/Summary';
 import type { RoundState } from '@models/models';
+import SavedRoundView from "@components/SavedRoundView";
 
 
-type Screen = "home" | "new" | "in" | "summary";
+type Screen = "home" | "new" | "in" | "summary" | "saved";
 
 
 function App() {
@@ -16,6 +17,7 @@ function App() {
   const [state, dispatch] = useReducer(reducer, saved ?? initialState());
   const [screen, setScreen] = useState<Screen>(saved?.currentRound ? "in" : "home");
   const [finishedRound, setFinishedRound] = useState<RoundState | null>(null);
+  const [viewSavedId, setViewSavedId] = useState<string | undefined>(undefined);
 
   useEffect(()=>{ saveState(state); }, [state]);
 
@@ -24,7 +26,8 @@ function App() {
       {screen==="home" && (
         <Home
           onStart={()=>setScreen("new")}
-          onReset={()=>{ clearState(); location.reload(); }}
+          savedRounds={state.savedRounds ?? []}
+          onOpenSaved={(id) => { setViewSavedId(id); setScreen('saved'); }}
         />
       )}
 
@@ -41,6 +44,18 @@ function App() {
         onBack={() => setScreen("home")}
         />
       )}
+
+      {screen === 'saved' && viewSavedId && (
+        <SavedRoundView
+          round={(state.savedRounds ?? []).find(r => r.id === viewSavedId)!}
+          onBack={() => setScreen('home')}
+          onDelete={() => {
+            dispatch({ type: 'DELETE_SAVED_ROUND', payload: { roundId: viewSavedId } });
+            setScreen('home');
+          }}
+        />
+      )}
+
 
       {screen==="summary" && finishedRound && (
         <Summary
@@ -59,7 +74,10 @@ function App() {
           onRemoveThrow={(pid) => dispatch({ type: "REMOVE_THROW", payload: { playerId: pid } })}
           onPrevHole={() => dispatch({ type: "PREV_HOLE" })}
           onNextHole={() => dispatch({ type: "NEXT_HOLE" })}
-          onEnd={() => { setFinishedRound(state.currentRound!); dispatch({ type: "END_ROUND" }); setScreen("summary"); }}
+          onEnd={() => {
+            dispatch({ type: 'END_ROUND' });   
+            setScreen("home")
+          }}
           onHome={() => setScreen("home")}
           onPickCard={(hole, playerId, cardId) => dispatch({ type: "PICK_CARD", payload: { hole, playerId, cardId } })}
         />

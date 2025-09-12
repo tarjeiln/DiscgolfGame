@@ -34,3 +34,13 @@
   border-top: 1px dashed var(--border);
   padding-top: 6px;
 }
+
+.parBadge {
+  display: inline-flex;
+  align-items: center;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  border-radius: 999px;
+  padding: 4px 10px;
+  font-weight: 600;
+}
