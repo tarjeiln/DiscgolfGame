@@ -3,7 +3,7 @@ import { rid } from '@lib/id';
 import { buildDeck } from '@lib/cards';
 
 export type Action =
-  | { type: "NEW_ROUND"; payload: { courseName?: string; players: string[]; holes: number; defaultPar?: number } }
+  | { type: "NEW_ROUND"; payload: { courseName?: string; players: string[]; holes: number; defaultPar?: number;  holesPreset?: number[]; } }
   | { type: "LOG_THROW"; payload: { playerId: string; note?: string } }
   | { type: "REMOVE_THROW"; payload: { playerId: string } }
   | { type: "NEXT_HOLE" }
@@ -129,7 +129,8 @@ export function reducer(state: AppState, action: Action): AppState {
         const players: Player[] = action.payload.players
             .map(name => ({ id: rid("p"), name: name.trim() }))
             .filter(p => p.name.length);
-        const holes = buildHoles(action.payload.holes, action.payload.defaultPar ?? 3);
+        const holes = action.payload.holesPreset?.length ? action.payload.holesPreset.map((par, i) => ({ number: i + 1, par })) 
+        : buildHoles(action.payload.holes, action.payload.defaultPar ?? 3);
         const { cards, deck } = buildDeck();
         let round: RoundState = {
           id: rid("round"),

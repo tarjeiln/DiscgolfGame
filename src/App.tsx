@@ -30,12 +30,15 @@ function App() {
 
       {screen==="new" && (
         <NewRound
-          onCreate={(course, players, holes)=>{
-            setFinishedRound(null);
-            dispatch({ type:"NEW_ROUND", payload:{ courseName:course, players, holes, defaultPar:3 } });
-            setScreen("in");
-          }}
-          onBack={()=>setScreen("home")}
+         onCreate={(name, players, holes, holesPreset) => {
+          dispatch({ type: "NEW_ROUND", payload: {
+            courseName: name, players, holes,
+            holesPreset,            // ⬅️ bruker vi hvis satt
+            defaultPar: 3
+          }});
+          setScreen("in");
+        }}
+        onBack={() => setScreen("home")}
         />
       )}
 

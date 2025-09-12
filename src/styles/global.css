@@ -122,3 +122,56 @@ button:focus-visible{
   box-shadow: var(--shadow);
   padding: 16px;
 }
+
+/* Scrollbar-container for lange lister */
+.scroll {
+  max-height: 260px;      /* juster høyde etter smak */
+  overflow: auto;
+  padding-right: 4px;     /* litt plass for scrollbar */
+}
+
+/* Kompakt pill-liste */
+.chips {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); /* fast bredde per pill */
+  gap: 8px;
+  align-items: start;
+  margin-top: 8px;
+}
+
+.chip {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+
+  width: 100%;                          /* fyll cella */
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--text);                   /* <- OVERRIDER hvit tekst på button */
+  border-radius: 999px;
+  padding: 8px 12px;                    /* litt større for touch */
+  font-size: 13px;
+  line-height: 1;}
+
+/* Tekst skal kunne klippes pent hvis navnet er langt */
+.chipText {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  min-width: 0;                         /* viktig for flex-ellipsis i noen browsere */
+}
+
+/* Liten sekundær label til høyre (“layout”) */
+.chipSub {
+  margin-left: 6px;
+  font-size: 12px;
+  color: var(--muted);
+  flex: 0 0 auto;
+}
+
+.chip:hover { filter: brightness(0.98); }
+.chip:focus-visible {
+  outline: 2px solid color-mix(in oklab, var(--primary) 40%, transparent);
+  outline-offset: 2px;
+}
