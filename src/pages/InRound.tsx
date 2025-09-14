@@ -57,10 +57,58 @@ export default function InRound({ round, onLogThrow, onRemoveThrow, onPrevHole, 
   const hc = round.holeCards?.[currentHole];
   const cards = round.cards ?? {};
 
-  // hvem sin tur på hull >= 2
-  const pickedCount = hc && hc.picks ? Object.keys(hc.picks).length : 0;
-  const currentPickerId = (hc && hc.pickOrder && hc.pickOrder[pickedCount]) || undefined;
-  const currentPickerName = round.players.find(p => p.id === currentPickerId)?.name;
+  // teller kast for en spiller på et hull
+  function holeStrokes(round: RoundState, hole: number, playerId: ID): number {
+    return round.throwLog.filter(ev => ev.playerId === playerId && ev.hole === hole).length;
+  }
+
+  // (kast - par) for et spesifikt hull. Hvis spilleren mangler kast (edge case), behandle som "ingen data" = 0.
+  function holeDelta(round: RoundState, hole: number, playerId: ID): number {
+    const strokes = holeStrokes(round, hole, playerId);
+    if (strokes === 0) return 0; // ingen data → ikke bruk til å avgjøre
+    const par = round.holes[hole - 1]?.par ?? 3;
+    return strokes - par; // høyere = dårligere
+  }
+
+  // Sammenlign to spillere ved å gå bakover hull for hull til forskjell finnes.
+  // Returnerer >0 hvis b er bedre enn a (a skal først), <0 hvis a er bedre enn b, 0 hvis helt likt tilbake til start.
+  function compareBacktrack(round: RoundState, currentHole: number, aId: ID, bId: ID): number {
+    for (let h = currentHole - 1; h >= 1; h--) {
+      const da = holeDelta(round, h, aId);
+      const db = holeDelta(round, h, bId);
+      if (da !== db) {
+        // dårligst først → høyere delta (da/db) skal komme FØRST
+        return db - da;
+      }
+    }
+    return 0; // helt likt tilbake til starten
+  }
+
+
+    // hvem sin tur på hull >= 2 (beregn rekkefølge dynamisk m/ tie-break)
+  const teeIndex = new Map(teeIds.map((id, idx) => [id, idx]));
+
+  const sortedPickOrder = [...orderedPlayers].sort((a, b) => {
+    // 1) “Worst so far” → flest totale kast først
+    const ta = totalStrokes(a.id);
+    const tb = totalStrokes(b.id);
+    if (ta !== tb) return tb - ta;
+
+    // 2) Tie-break: gå bakover hull for hull til vi finner hvem som gjorde det dårligst sist
+    const back = compareBacktrack(round, currentHole, a.id, b.id);
+    if (back !== 0) return back;
+
+    // 3) Helt likt tilbake til start → bruk rekkefølgen ved rundestart (teeOrder)
+    return (teeIndex.get(a.id) ?? 0) - (teeIndex.get(b.id) ?? 0);
+  });
+
+  const alreadyPickedIds = new Set(Object.keys(hc?.picks ?? {}));
+  const nextPicker = sortedPickOrder.find(p => !alreadyPickedIds.has(p.id));
+  const currentPickerId = nextPicker?.id;
+  const currentPickerName = nextPicker?.name;
+
+
+
 
   return (
     <main className="container">
