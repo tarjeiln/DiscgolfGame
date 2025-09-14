@@ -73,12 +73,6 @@ export default function NewRound({ onCreate, onBack }: Props) {
 }
 
 
-  function applyRanking() {
-  setMxResults(prev => rankCourses(prev, query, sortMode, onlyLayouts));
-  }
-
-
-
   // --- spillere (dynamisk) ---
   const updatePlayer = (i: number, name: string) =>
     setPlayers(prev => {

@@ -1,6 +1,6 @@
 import { useEffect, useReducer, useState } from "react";
 import { reducer, initialState } from "./state/reducer";
-import { loadState, saveState, clearState } from "./state/storage";
+import { loadState, saveState} from "./state/storage";
 import Home from '@pages/Home';
 import NewRound from '@pages/NewRound';
 import InRound from '@pages/InRound';

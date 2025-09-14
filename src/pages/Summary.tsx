@@ -1,6 +1,5 @@
 import { scoreboard, coursePar } from '@lib/stats';
 import type { RoundState } from '@models/models';
-import styles from './Summary.module.css'; // hvis du har den
 
 
 type Props = { round: RoundState; onHome: ()=>void; };
