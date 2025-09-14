@@ -1,7 +1,15 @@
 // src/lib/metrix.ts
 import type { Hole } from "@models/models";
 
-const BASE = "/metrix/api.php";
+// øverst i src/lib/metrix.ts
+const BASE =
+  import.meta.env.PROD
+    ? '/api/metrix'           // prod: vår serverless-proxy
+    : '/metrix/api.php';      // dev: Vite-proxy (allerede satt opp)
+
+export { BASE };
+// …resten av metrix-koden bruker BASE som før
+
 
 export type MetrixCourseListItem = {
   ID: string;
