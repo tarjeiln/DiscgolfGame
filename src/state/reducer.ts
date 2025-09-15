@@ -1,9 +1,10 @@
 import type { AppState, Player, Hole, RoundState, ID, HoleCards, SavedRound } from '@models/models';
 import { rid } from '@lib/id';
 import { buildDeck } from '@lib/cards';
+import type { Card } from '@models/models';
 
 export type Action =
-  | { type: "NEW_ROUND"; payload: { courseName?: string; players: string[]; holes: number; defaultPar?: number;  holesPreset?: number[]; } }
+  | { type: "NEW_ROUND"; payload: { courseName?: string; players: string[]; holes: number; defaultPar?: number;  holesPreset?: number[]; deckInclude?: Card['category'][] } }
   | { type: "LOG_THROW"; payload: { playerId: string; note?: string } }
   | { type: "REMOVE_THROW"; payload: { playerId: string } }
   | { type: "NEXT_HOLE" }
@@ -133,7 +134,13 @@ export function reducer(state: AppState, action: Action): AppState {
             .filter(p => p.name.length);
         const holes = action.payload.holesPreset?.length ? action.payload.holesPreset.map((par, i) => ({ number: i + 1, par })) 
         : buildHoles(action.payload.holes, action.payload.defaultPar ?? 3);
-        const { cards, deck } = buildDeck();
+        const required = 1 + Math.max(0, holes.length - 1) * players.length;
+        const buffer   = Math.ceil(required * 0.10); // ~10% buffer
+        const minSize  = required + buffer;
+        const { cards, deck } = buildDeck({
+            include: action.payload.deckInclude, // kan være undefined = alle kategorier
+            minSize
+        });
         let round: RoundState = {
           id: rid("round"),
           courseName: action.payload.courseName?.trim() || undefined,

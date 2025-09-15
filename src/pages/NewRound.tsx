@@ -2,9 +2,10 @@ import { useState } from "react";
 import FormField from "@components/form/FormField";
 import { metrixSmartSearch, metrixGetCourse, mapMetrixToHoles, rankCourses, type SortMode, metrixFetchLayoutsForParent, extractMetrixId } from "@lib/metrix";
 import type { MetrixCourseListItem } from "@lib/metrix";
+import type { Card } from '@models/models';
 
 type Props = {
-  onCreate: (courseName: string, players: string[], holes: number, holesPreset?: number[]) => void;
+  onCreate: (courseName: string, players: string[], holes: number, holesPreset?: number[], deckInclude?: Card['category'][]) => void;
   onBack: () => void;
 };
 
@@ -30,6 +31,9 @@ export default function NewRound({ onCreate, onBack }: Props) {
   const [directId, setDirectId] = useState("");
   const [directErr, setDirectErr] = useState<string | undefined>();
 
+  const ALL_CATEGORIES: Card['category'][] = ['ThrowStyle','Scoring','Challenge','DiscLimit','Other'];
+  const [categories, setCategories] = useState<Card['category'][]>([...ALL_CATEGORIES]);
+  const toggleCat = (cat: Card['category']) => setCategories(prev => prev.includes(cat) ? prev.filter(c => c !== cat) : [...prev, cat]);
 
   async function fetchByDirectId() {
   setDirectErr(undefined);
@@ -121,16 +125,28 @@ export default function NewRound({ onCreate, onBack }: Props) {
     }
   }
 
-  function clearPreset() {
-    setHolesPreset(undefined);
+    function clearPreset() {
+        setHolesPreset(undefined);
   }
 
   // --- start runde ---
-  function startRound() {
-    const names = players.map(s => s.trim()).filter(Boolean);
-    if (names.length === 0) names.push("Spiller 1");
-    onCreate(courseName.trim(), names, holes, holesPreset);
-  }
+    function startRound() {
+        const names = players.map(s => s.trim()).filter(Boolean);
+        if (names.length === 0) names.push("Spiller 1");
+
+        // send bare deckInclude hvis du faktisk har filtrert (ellers undefined)
+        const deckInclude =
+        categories.length === ALL_CATEGORIES.length ? undefined : categories;
+
+        onCreate(
+        courseName.trim(),
+        names,
+        holes,
+        holesPreset,
+        deckInclude
+        );
+    }
+
 
   return (
     <main className="container">
@@ -192,6 +208,47 @@ export default function NewRound({ onCreate, onBack }: Props) {
           inputMode="numeric"
           hint="1–27 hull"
         />
+            {/* Kort-kategorier (valgfritt filter) */}
+            <section className="panel">
+            <h3 style={{ marginTop: 0 }}>Kort-kategorier</h3>
+            <div className="chips">
+                {ALL_CATEGORIES.map(cat => {
+                const on = categories.includes(cat);
+                return (
+                    <button
+                    key={cat}
+                    type="button"
+                    className="chip"
+                    aria-pressed={on}
+                    onClick={() => toggleCat(cat)}
+                    title={on ? 'Klikk for å deaktivere' : 'Klikk for å aktivere'}
+                    style={on ? { outline: '2px solid var(--primary)' } : undefined}
+                    >
+                    <span className="chipText">{cat}</span>
+                    <span className="chipSub">{on ? 'på' : 'av'}</span>
+                    </button>
+                );
+                })}
+            </div>
+            <div style={{ marginTop: 8 }}>
+                <button
+                type="button"
+                className="btn-secondary"
+                onClick={() => setCategories([...ALL_CATEGORIES])}
+                >
+                Velg alle
+                </button>
+                &nbsp;
+                <button
+                type="button"
+                className="btn-secondary"
+                onClick={() => setCategories([])}
+                >
+                Fjern alle
+                </button>
+            </div>
+            </section>
+
 
         {/* Hent par fra Disc Golf Metrix */}
         <section className="panel">
