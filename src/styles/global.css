@@ -227,6 +227,7 @@ button:focus-visible{
   50%  { transform: translate3d(-2%, 1%, 0) scale(1.02); }
   100% { transform: translate3d(2%, -1%, 0) scale(1.04); }
 }
+@media (prefers-color-scheme: dark){ .bg{ filter: blur(20px) saturate(100%) brightness(0.9); }}
 
 /* Global kontroll-stil (samme look som FormField) */
 .inputBase{
