@@ -1,7 +1,8 @@
 import styles from './Home.module.css';
 import { scoreboard, coursePar } from '@lib/stats';
 import type { SavedRound } from '@models/models';
-import logo from '@assets/logo.svg';
+import logolight from '@assets/logoLight.svg';
+import logodark from '@assets/logoDark.svg';
 
 type Props = {
   onStart: () => void;
@@ -22,8 +23,10 @@ export default function Home({ onStart, savedRounds, onOpenSaved }: Props) {
       <div className="bg" />
       <div className={styles.masthead}>
         <div className="container">
-          <img src={logo} alt="Spilllogo" className={styles.logo}/>
-          {/*<h1 className={styles.mastheadTitle}>{APP_NAME}</h1>*/}
+          <picture>
+            <source srcSet={logodark} media="(prefers-color-scheme: dark)" />
+            <img src={logolight} alt="Mando Madness" className={styles.logo} />
+          </picture>
         </div>
       </div>
 
