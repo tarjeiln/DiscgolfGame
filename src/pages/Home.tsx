@@ -1,6 +1,7 @@
 import styles from './Home.module.css';
 import { scoreboard, coursePar } from '@lib/stats';
 import type { SavedRound } from '@models/models';
+import logo from '@assets/logo.svg';
 
 type Props = {
   onStart: () => void;
@@ -8,7 +9,7 @@ type Props = {
   onOpenSaved: (id: string) => void;   // ⬅️ NY
 };
 
-const APP_NAME = import.meta.env.VITE_APP_NAME ?? "DiscgolfGame";
+/*const APP_NAME = import.meta.env.VITE_APP_NAME ?? "";*/
 
 export default function Home({ onStart, savedRounds, onOpenSaved }: Props) {
   const fmtDate = (t: number) =>
@@ -18,9 +19,11 @@ export default function Home({ onStart, savedRounds, onOpenSaved }: Props) {
 
   return (
     <div className={styles.page}>
+      <div className="bg" />
       <div className={styles.masthead}>
         <div className="container">
-          <h1 className={styles.mastheadTitle}>{APP_NAME}</h1>
+          <img src={logo} alt="Spilllogo" className={styles.logo}/>
+          {/*<h1 className={styles.mastheadTitle}>{APP_NAME}</h1>*/}
         </div>
       </div>
 
@@ -30,8 +33,8 @@ export default function Home({ onStart, savedRounds, onOpenSaved }: Props) {
         <div className={styles.wrap}>
           {/* Kort 1: Hero */}
           <section className={styles.hero}>
-            <h2 className={styles.heroTitle}>Start en ny runde – fort gjort.</h2>
-            <p className={styles.subtitle}>Legg til spillere og sett antall hull.</p>
+            <h2 className={styles.heroTitle}>Start en ny runde</h2>
+            <p className={styles.subtitle}>Legg til spillere og velg bane.</p>
             <div className={styles.actions}>
               <button type="button" onClick={onStart}>Ny runde</button>
             </div>

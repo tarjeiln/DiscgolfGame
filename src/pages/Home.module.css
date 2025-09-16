@@ -2,33 +2,13 @@
 
 /* Topplinje – egen farge/gradient, bare på Home */
 .masthead{
-  background: linear-gradient(180deg, var(--masthead-bg, color-mix(in oklab, var(--primary) 14%, #fff)) 0%, transparent 100%);
-  padding: 32px 0 72px; /* høyde på området over kortene */
+  background: linear-gradient(180deg, var(--masthead-bg, color-mix(in oklab, var(--primary) 0%)) 0%, var( --transparent) 30%);
+  padding: 32px 0 32px; /* høyde på området over kortene */
 }
 .mastheadTitle{
   margin: 0;
   text-align: center;
   font-size: 34px;
-}
-
-/* Dynamisk bakgrunn (kan justeres/slås av) */
-.bg {
-  position: fixed;
-  inset: -20%;
-  z-index: -1;
-  pointer-events: none;
-  background:
-    radial-gradient(600px 320px at 15% 10%, color-mix(in oklab, var(--primary) 22%, transparent) 0 60%, transparent 70%),
-    radial-gradient(520px 280px at 85% 20%, color-mix(in oklab, var(--success) 18%, transparent) 0 55%, transparent 65%),
-    radial-gradient(640px 360px at 20% 90%, color-mix(in oklab, var(--primary) 14%, transparent) 0 60%, transparent 70%);
-  filter: blur(20px) saturate(110%);
-  transform: translateZ(0);
-  animation: float 18s ease-in-out infinite alternate;
-}
-@keyframes float {
-  0%   { transform: translate3d(0, 0, 0) scale(1); }
-  50%  { transform: translate3d(-2%, 1%, 0) scale(1.02); }
-  100% { transform: translate3d(2%, -1%, 0) scale(1.04); }
 }
 
 /* Kortene */
@@ -49,4 +29,12 @@
   border-radius: var(--radius);
   padding: 12px 16px;
   background: var(--surface);
+}
+
+.logo {
+  display: block;
+  margin: 0 auto 0px;
+  padding: 30px 0px 0px 0px; /*Top, venstre, bunn, høyre*/
+  max-width: 300px;
+  height: auto;
 }

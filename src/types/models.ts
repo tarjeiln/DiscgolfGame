@@ -53,7 +53,7 @@ export type Card = {
   id: ID;
   title: string;
   description?: string;
-  rarity?: 'common' | 'rare' | 'epic';
+  category: 'ThrowStyle' | 'Scoring' | 'Challenge' | 'DiscLimit' | 'Other';
 };
 
 export type HoleCards = {
