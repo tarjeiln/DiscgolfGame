@@ -3,9 +3,9 @@
   align-items: center;
   justify-content: space-between;
   padding: 12px;
-  border: 1px solid #e5e5e5;
-  border-radius: 10px;
-  background: #fafafa;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--surface);
 }
 
 .name { font-weight: 600; }
@@ -24,8 +24,9 @@
 }
 
 .plus, .minus {
-  width: 40px; height: 40px;
-  border-radius: 10px;
+  width: var(--control-h);
+  height: var(--control-h);
+  border-radius: var(--radius);
   font-size: 22px;
   line-height: 1;
   display: inline-flex; align-items: center; justify-content: center;

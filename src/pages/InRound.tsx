@@ -113,6 +113,7 @@ export default function InRound({ round, onLogThrow, onRemoveThrow, onPrevHole, 
   return (
     <main className="container">
       <div className="stack">
+        <div className="bg" />
         <h2>{round.courseName ?? "Runde"} – Hull {currentHole}/{round.holes.length}</h2>
         <p style={{ marginTop: 6, marginBottom: 8 }}>
           <span className={styles.parBadge}>Hull {currentHole}: Par {round.holes[currentHole - 1]?.par ?? 3}</span>
