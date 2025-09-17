@@ -33,11 +33,13 @@ function App() {
 
       {screen==="new" && (
         <NewRound
-         onCreate={(name, players, holes, holesPreset) => {
+         onCreate={(name, players, holes, holesPreset, deckInclude, modChance) => {
           dispatch({ type: "NEW_ROUND", payload: {
             courseName: name, players, holes,
-            holesPreset,            // ⬅️ bruker vi hvis satt
-            defaultPar: 3
+            holesPreset,
+            defaultPar: 3,
+            deckInclude,
+            modChance
           }});
           setScreen("in");
         }}

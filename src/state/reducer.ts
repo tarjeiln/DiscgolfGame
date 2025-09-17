@@ -4,7 +4,7 @@ import { buildDeck } from '@lib/cards';
 import type { Card } from '@models/models';
 
 export type Action =
-  | { type: "NEW_ROUND"; payload: { courseName?: string; players: string[]; holes: number; defaultPar?: number;  holesPreset?: number[]; deckInclude?: Card['category'][] } }
+  | { type: "NEW_ROUND"; payload: { courseName?: string; players: string[]; holes: number; defaultPar?: number;  holesPreset?: number[]; deckInclude?: Card['category'][]; modChance?: number} }
   | { type: "LOG_THROW"; payload: { playerId: string; note?: string } }
   | { type: "REMOVE_THROW"; payload: { playerId: string } }
   | { type: "NEXT_HOLE" }
@@ -83,7 +83,7 @@ function prepareHole(r: RoundState, hole: number): RoundState {
     const shared = drawn[0];
     const picks = Object.fromEntries(r.players.map(p => [p.id, shared]));
     const pickOrder = r.players.map(p => p.id); // ubetydelig for hull 1
-    const next: RoundState = {
+    let next: RoundState = {
       ...r,
       deck, discard,
       holeCards: {
@@ -98,6 +98,7 @@ function prepareHole(r: RoundState, hole: number): RoundState {
         }
       }
     };
+    next = maybeAttachHoleMod(next, hole);
     return next;
   }
 
@@ -105,7 +106,7 @@ function prepareHole(r: RoundState, hole: number): RoundState {
   const count = r.players.length;
   const { drawn, deck, discard } = draw(r, count);
   const pickOrder = makePickOrder(r, hole);
-  const next: RoundState = {
+  let next: RoundState = {
     ...r,
     deck, discard,
     holeCards: {
@@ -119,7 +120,41 @@ function prepareHole(r: RoundState, hole: number): RoundState {
       }
     }
   };
+  next = maybeAttachHoleMod(next, hole);
   return next;
+}
+
+function maybeAttachHoleMod(r: RoundState, hole: number): RoundState {
+
+  const hasMods = (r.modDeck?.length ?? 0) + (r.modDiscard?.length ?? 0) > 0;
+  if (!hasMods) return r;
+    const holeMods = r.holeMods ?? {};
+  if (holeMods[hole]?.length) return r;
+  const chance = r.modChance ?? 0.3;
+  if (Math.random() >= chance) return r;
+  const { drawn, deck } = drawFrom(r.modDeck, r.modDiscard, 1);
+  const cardId = drawn[0];
+  if (!cardId) return r;
+  const prevDiscard = r.modDiscard ?? [];
+  return {
+    ...r,
+    modDeck: deck,
+    // legg brukte mod-kort i discard slik at drawFrom kan resirkulere senere
+    modDiscard: [...prevDiscard, cardId],
+    holeMods: { ...holeMods, [hole]: [cardId] }
+  };
+}
+
+function drawFrom(deck: ID[] = [], discard: ID[] = [], n: number) {
+  let d = deck.slice();
+  let di = discard.slice();
+  const out: ID[] = [];
+  for (let i = 0; i < n; i++) {
+    if (d.length === 0) { d = di.slice(); di = []; }
+    if (d.length === 0) break;
+    out.push(d.shift()!);
+  }
+  return { drawn: out, deck: d, discard: di };
 }
 
 
@@ -137,7 +172,7 @@ export function reducer(state: AppState, action: Action): AppState {
         const required = 1 + Math.max(0, holes.length - 1) * players.length;
         const buffer   = Math.ceil(required * 0.10); // ~10% buffer
         const minSize  = required + buffer;
-        const { cards, deck } = buildDeck({
+        const { cards, deck, modDeck } = buildDeck({
             include: action.payload.deckInclude, // kan være undefined = alle kategorier
             minSize
         });
@@ -155,6 +190,10 @@ export function reducer(state: AppState, action: Action): AppState {
           deck,
           discard: [],
           holeCards: {},
+          holeMods: {},
+          modDeck,
+          modDiscard: [],
+          modChance: action.payload.modChance ?? 0.2,
         };
         round = prepareHole(round, 1);
         return { ...state, currentRound: round };

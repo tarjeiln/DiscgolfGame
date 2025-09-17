@@ -118,7 +118,27 @@ export default function InRound({ round, onLogThrow, onRemoveThrow, onPrevHole, 
         <p style={{ marginTop: 6, marginBottom: 8 }}>
           <span className={styles.parBadge}>Hull {currentHole}: Par {round.holes[currentHole - 1]?.par ?? 3}</span>
         </p>
-
+        {/* MODIFIKASJON-SEKSJON */}
+        {(round?.holeMods?.[round.currentHole] ?? []).length > 0 && (
+          <div className={styles.cards}>
+            {(round.holeMods![round.currentHole] ?? []).map((id) => {
+              const card = round.cards?.[id];
+              if (!card) return null;
+              return (
+                <article
+                  key={id}
+                  className={`${styles.card} ${styles.modCard}`}
+                >
+                  <div className={styles.modHeader}>Modifikasjon - Alle Spillere</div>
+                  <h3 className={styles.cardTitle}>{card.title}</h3>
+                  {card.description && (
+                    <p className={styles.cardDesc}>{card.description}</p>
+                  )}
+                </article>
+              );
+            })}
+          </div>
+        )}
         {/* KORT-SEKSJON */}
         {hc && (
           <section>

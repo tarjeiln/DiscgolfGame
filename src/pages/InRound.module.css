@@ -44,3 +44,16 @@
   padding: 4px 10px;
   font-weight: 600;
 }
+
+.modCard {
+  border: 3px solid var(--danger); /* kraftigere outline */
+  position: inside;
+}
+
+.modHeader {
+  font-size: 14px;
+  font-weight: bold;
+  text-transform: uppercase;
+  color: var(--danger);
+  margin-bottom: 4px;
+}

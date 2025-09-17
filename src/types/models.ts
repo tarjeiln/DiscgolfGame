@@ -32,6 +32,11 @@ export type RoundState = {
   deck?: ID[];                // resterende kort i bunken (øverst = index 0)
   discard?: ID[];             // brukte kort
   holeCards?: Record<number, HoleCards>; // per-hull tildeling
+  holeMods?: Record<number, ID[]>;
+  /** Egen “stokk” for group-kort */
+  modDeck?: ID[];
+  modDiscard?: ID[];
+  modChance?: number;
 };
 
 
@@ -54,6 +59,7 @@ export type Card = {
   title: string;
   description?: string;
   category: 'ThrowStyle' | 'Scoring' | 'Challenge' | 'DiscLimit' | 'Other';
+  scope?: 'player'|'group';
 };
 
 export type HoleCards = {

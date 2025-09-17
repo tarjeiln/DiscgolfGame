@@ -4,7 +4,7 @@ import { metrixGetCourse, mapMetrixToHoles, extractMetrixId } from "@lib/metrix"
 import type { Card } from '@models/models';
 
 type Props = {
-  onCreate: (courseName: string, players: string[], holes: number, holesPreset?: number[], deckInclude?: Card['category'][]) => void;
+  onCreate: (courseName: string, players: string[], holes: number, holesPreset?: number[], deckInclude?: Card['category'][], modChance?: number) => void;
   onBack: () => void;
 };
 
@@ -24,6 +24,9 @@ export default function NewRound({ onCreate, onBack }: Props) {
   const ALL_CATEGORIES: Card['category'][] = ['ThrowStyle','Scoring','Challenge','DiscLimit','Other'];
   const [categories, setCategories] = useState<Card['category'][]>([...ALL_CATEGORIES]);
   const toggleCat = (cat: Card['category']) => setCategories(prev => prev.includes(cat) ? prev.filter(c => c !== cat) : [...prev, cat]);
+
+  // sjanse for hull-modifikasjoner (0–100 %)
+  const [modChance, setModChance] = useState(20);
 
   async function fetchByDirectId() {
     setDirectErr(undefined);
@@ -77,7 +80,8 @@ export default function NewRound({ onCreate, onBack }: Props) {
         names,
         holes,
         holesPreset,
-        deckInclude
+        deckInclude,
+        modChance /100
         );
     }
 
@@ -142,6 +146,21 @@ export default function NewRound({ onCreate, onBack }: Props) {
           max={27}
           inputMode="numeric"
           hint="1–27 hull"
+        />
+        <FormField
+          id="modChance"
+          label="Sjanse for hull-modifikasjon (%)"
+          type="number"
+          value={modChance}
+          onChange={v => {
+            const n = parseInt(v, 10);
+            const safe = Number.isNaN(n) ? 0 : Math.max(0, Math.min(100, n));
+            setModChance(safe);
+          }}
+          min={0}
+          max={100}
+          inputMode="numeric"
+          hint="0–100 %"
         />
             {/* Kort-kategorier (valgfritt filter) */}
             <section className="panel">
